@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
-:root { --bg: #07111f; --panel: #0d1b2d; --line: #20344c; --ink: #edf5ff; --muted: #91a5bd; --cyan: #43d5e8; }
+:root { --bg: #07111f; --panel: #0d1b2d; --line: #29435e; --ink: #f2f6fc; --muted: #a8b8ca; --cyan: #55d9e8; }
 * { box-sizing: border-box; }
 html { background: var(--bg); scroll-behavior: smooth; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-size: 16px; line-height: 1.6; }
 a { color: inherit; text-decoration: none; }
 ::selection { background: #164f68; color: white; }
 .gridline { background-image: linear-gradient(rgba(67,213,232,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(67,213,232,.045) 1px, transparent 1px); background-size: 32px 32px; }
-.panel { border: 1px solid var(--line); background: linear-gradient(145deg, rgba(17,37,60,.96), rgba(10,24,42,.96)); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+.panel { border: 1px solid var(--line); background: linear-gradient(145deg, rgba(17,37,60,.96), rgba(10,24,42,.96)); box-shadow: 0 12px 32px rgba(0,0,0,.13); }
 .eyebrow { color: var(--cyan); font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-.prose-copy p { color: #bfcede; line-height: 1.85; }
+.prose-copy p { color: #c9d6e5; line-height: 1.9; max-width: 72ch; }
