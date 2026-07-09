@@ -5,7 +5,6 @@ import { BeginnerGuideBox } from "@/components/BeginnerGuideBox";
 import { BusinessModelCards } from "@/components/BusinessModelCards";
 import { HeroIllustration } from "@/components/HeroIllustration";
 import { KpiWatchlist } from "@/components/KpiWatchlist";
-import { ObservationSnapshot } from "@/components/ObservationSnapshot";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { SourceBlock } from "@/components/SourceBlock";
 import { SummaryPanel } from "@/components/SummaryPanel";
@@ -39,28 +38,27 @@ export default async function StockDetail({ params }: { params: Promise<{ slug: 
   const learnLinks = stock.relatedLearn.map((itemSlug) => ({ href: `/learn/${itemSlug}`, label: findLearn(itemSlug)?.title ?? itemSlug }));
 
   return <Container className="py-10 sm:py-14">
-    <header className="border-b border-[#20344c] pb-9">
-      <p className="eyebrow">기업 설명서</p>
-      <div className="mt-3 flex flex-wrap items-center gap-3"><h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{stock.name}</h1><span className="rounded-md bg-cyan-300/10 px-2.5 py-1 font-mono text-sm font-bold text-cyan-100">{stock.ticker}</span></div>
-      <p className="mt-3 text-sm text-slate-400">{stock.exchange} · {stock.sector} · 업데이트 {formatDate(stock.lastUpdated)}</p>
+    <header className="company-header">
+      <p className="eyebrow">기업 이야기</p>
+      <div className="mt-3 flex flex-wrap items-center gap-3"><h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{stock.name}</h1><span className="company-ticker">{stock.ticker}</span></div>
+      <p className="company-header__summary">{stock.summary}</p>
+      <p className="mt-3 text-sm text-slate-400">{stock.exchange} · {stock.sector} · 마지막 정리 {formatDate(stock.lastUpdated)}</p>
       <div className="mt-5 flex flex-wrap gap-2">{stock.themes.map((itemSlug) => { const theme = findTheme(itemSlug); return theme && <TagBadge key={itemSlug} label={theme.name} href={`/themes/${itemSlug}`} />; })}</div>
     </header>
 
-    <div className="mt-8 grid gap-6 lg:grid-cols-[1.25fr_.75fr]">
-      <SummaryPanel facts={quickFacts} />
+    <section className="easy-company-intro">
+      <div><p className="eyebrow">이 회사는 쉽게 말해?</p><h2>{stock.name}는 어떤 회사인가요?</h2><p>{stock.description}</p></div>
       <HeroIllustration ticker={stock.ticker} name={stock.name} />
-    </div>
+    </section>
 
-    <div className="mt-12 space-y-10">
-      <ObservationSnapshot items={observationPoints} lastUpdated={formatDate(stock.lastUpdated)} />
-      <section className="kpi-dashboard"><div className="mb-6 max-w-3xl"><p className="eyebrow">핵심 KPI 스냅샷</p><h2 className="mt-2 text-2xl font-semibold sm:text-3xl">숫자보다 먼저, 상태와 다음 점검 지점을 봅니다.</h2><p className="mt-3 text-sm leading-7 text-slate-400">검수된 수치가 없는 항목은 임의로 채우지 않고 공식 자료 입력 대기 상태로 표시합니다.</p></div><KpiWatchlist items={stock.kpis} /></section>
-      <section className="max-w-4xl"><p className="eyebrow">한마디로 이해하기</p><h2 className="mt-2 text-2xl font-semibold sm:text-3xl">{stock.summary}</h2><p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">{stock.description}</p></section>
-      <BeginnerGuideBox links={learnLinks} />
+    <div className="mt-10 space-y-12">
+      <SummaryPanel facts={quickFacts} />
+      <section className="key-number-section"><div className="section-heading"><p className="eyebrow">핵심 숫자</p><h2>최근 공식 자료에서 볼 수 있는 숫자</h2><p>기업의 규모와 흐름을 빠르게 파악할 수 있는 몇 가지 숫자입니다.</p></div><KpiWatchlist items={stock.kpis} /></section>
       <section className="content-section"><div className="section-heading"><p className="eyebrow">사업 구조</p><h2>돈은 어디서 버나?</h2><p>제품 이름보다 고객이 무엇을 위해 비용을 지불하는지부터 봅니다.</p></div><BusinessModelCards items={businessSegments} /></section>
       <section className="content-section content-section--tint"><div className="section-heading"><p className="eyebrow">산업 속 위치</p><h2>왜 중요한가?</h2></div><WhyItMattersGrid items={whyItMatters} /></section>
-      <section className="supply-section"><div className="section-heading"><p className="eyebrow">산업 연결</p><h2>관련 기업과 공급망</h2><p>수요 기업, NVIDIA 플랫폼, 제조·메모리 파트너가 어떻게 이어지는지 봅니다.</p></div><SupplyChainDiagram items={supplyChain} /></section>
-      <section className="grid gap-5 lg:grid-cols-2"><InfoSection title="긍정 시나리오"><BulletList items={stock.bullCase} /></InfoSection><InfoSection title="부정 시나리오"><BulletList items={stock.bearCase} /></InfoSection></section>
-      <section className="grid gap-5 lg:grid-cols-[1.2fr_.8fr]"><InfoSection title="주요 리스크"><BulletList items={stock.risks} /></InfoSection><InfoSection title="관찰 이벤트"><p className="mb-4 text-slate-400">매수·매도 신호가 아니라, 사업 가설을 다시 점검하는 시점입니다.</p><BulletList items={stock.catalysts} /></InfoSection></section>
+      <section className="supply-section"><div className="section-heading"><p className="eyebrow">관련된 회사들</p><h2>어떤 회사들과 이어져 있나?</h2><p>고객, NVIDIA 플랫폼, 제조·메모리 회사가 어떻게 연결되는지 봅니다.</p></div><SupplyChainDiagram items={supplyChain} /></section>
+      <BeginnerGuideBox links={learnLinks} />
+      <details className="deep-dive"><summary><span><b>조금 더 깊게 보기</b><small>지금 볼 점, 긍정·부정 시나리오와 리스크</small></span><i aria-hidden="true">＋</i></summary><div className="deep-dive__content"><section><h3>지금 볼 점</h3><ul>{observationPoints.map((point) => <li key={point.title}><b>{point.title}</b><span>{point.detail}</span></li>)}</ul></section><section className="grid gap-5 lg:grid-cols-2"><InfoSection title="긍정적으로 볼 수 있는 점"><BulletList items={stock.bullCase} /></InfoSection><InfoSection title="반대로 생각해 볼 점"><BulletList items={stock.bearCase} /></InfoSection></section><section className="grid gap-5 lg:grid-cols-[1.2fr_.8fr]"><InfoSection title="주의해서 볼 점"><BulletList items={stock.risks} /></InfoSection><InfoSection title="다음에 확인할 일"><BulletList items={stock.catalysts} /></InfoSection></section></div></details>
       <section className="grid gap-5 lg:grid-cols-3"><RelatedLinks title="같이 보면 좋은 기업" kind="stocks" items={stock.relatedStocks.map((itemSlug) => ({ slug: itemSlug, label: findStock(itemSlug)?.name ?? itemSlug }))} /><RelatedLinks title="관련 개념" kind="learn" items={stock.relatedLearn.map((itemSlug) => ({ slug: itemSlug, label: findLearn(itemSlug)?.title ?? itemSlug }))} /><RelatedLinks title="관련 브리프" kind="briefs" items={stock.relatedBriefs.map((itemSlug) => ({ slug: itemSlug, label: findBrief(itemSlug)?.title ?? itemSlug }))} /></section>
       <section className="reference-section"><div><p className="eyebrow">출처</p><h2 className="mt-2 text-xl font-semibold">출처 및 확인 자료</h2><p className="mt-2 text-sm leading-6 text-slate-400">최신 내용과 구체적 수치는 공식 자료를 우선 확인하세요.</p><div className="mt-4"><SourceBlock sources={stock.sources} /></div></div><div><p className="eyebrow">업데이트 기록</p>{stock.thesisLogs.map((log) => <div className="mt-3" key={log.date}><p className="text-xs font-semibold text-cyan-200">{formatDate(log.date)}</p><div className="mt-2"><BulletList items={log.items} /></div></div>)}</div></section>
       <section className="rounded-xl border border-amber-300/20 bg-amber-300/5 p-5 sm:p-7"><p className="eyebrow text-amber-200">정보·학습 목적 안내</p><p className="mt-3 text-sm leading-7 text-amber-100">본 페이지는 투자 권유가 아닌 정보 정리 및 학습 목적의 기업 설명서입니다. 투자 판단과 책임은 투자자 본인에게 있습니다.</p></section>
