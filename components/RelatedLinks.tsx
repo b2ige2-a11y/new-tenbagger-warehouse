@@ -1,0 +1,2 @@
+import Link from "next/link";
+export function RelatedLinks({ title, items, kind }: { title: string; items: { slug: string; label: string }[]; kind: string }) { if (!items.length) return null; return <section className="panel rounded-xl p-5"><h3 className="text-sm font-semibold">{title}</h3><div className="mt-3 flex flex-wrap gap-2">{items.map((item) => <Link className="rounded border border-[#29435e] px-2.5 py-1.5 text-sm text-slate-300 hover:border-cyan-300/50 hover:text-cyan-200" href={`/${kind}/${item.slug}`} key={item.slug}>{item.label}</Link>)}</div></section>; }

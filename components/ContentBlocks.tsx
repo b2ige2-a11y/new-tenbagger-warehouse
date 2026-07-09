@@ -1,0 +1,4 @@
+import type { ReactNode } from "react";
+export function PageIntro({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) { return <section className="border-b border-[#20344c] pb-10 pt-14"><p className="eyebrow">{eyebrow}</p><h1 className="mt-3 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">{title}</h1><p className="mt-5 max-w-3xl text-base leading-7 text-slate-400">{description}</p></section>; }
+export function InfoSection({ title, children }: { title: string; children: ReactNode }) { return <section className="panel rounded-xl p-5 sm:p-7"><h2 className="text-xl font-semibold">{title}</h2><div className="mt-4 text-sm leading-7 text-slate-300">{children}</div></section>; }
+export function BulletList({ items }: { items: string[] }) { return <ul className="space-y-2">{items.map((item) => <li className="flex gap-2" key={item}><span className="mt-2 size-1.5 shrink-0 rounded-full bg-cyan-300" />{item}</li>)}</ul>; }

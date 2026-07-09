@@ -1,0 +1,14 @@
+import { notFound } from "next/navigation";
+import { Container } from "@/components/Container";
+import { BulletList, InfoSection } from "@/components/ContentBlocks";
+import { RelatedLinks } from "@/components/RelatedLinks";
+import { SourceBlock } from "@/components/SourceBlock";
+import { getTheme, themes } from "@/data/themes";
+import { stocks } from "@/data/stocks";
+import { learnItems } from "@/data/learn";
+import { briefs } from "@/data/briefs";
+import { metadata } from "@/lib/seo";
+import { formatDate } from "@/lib/utils";
+export function generateStaticParams() { return themes.map(({ slug }) => ({ slug })); }
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const theme = getTheme(slug); return theme ? metadata(`${theme.name} 테마 지도`, `${theme.name}의 가치사슬, 핵심 기업, 지표와 리스크를 정리한 테마 지도입니다.`, `/themes/${theme.slug}`) : {}; }
+export default async function ThemeDetail({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const theme = getTheme(slug); if (!theme) notFound(); const names = (items: { slug: string; name?: string; title?: string }[], ids: string[]) => ids.map((slug) => { const item = items.find((x) => x.slug === slug); return { slug, label: item?.name ?? item?.title ?? slug }; }); return <Container className="py-12"><div className="border-b border-[#20344c] pb-9"><p className="eyebrow">THEME DOSSIER</p><h1 className="mt-3 text-4xl font-semibold">{theme.name}</h1><p className="mt-5 max-w-3xl text-lg text-slate-300">{theme.summary}</p><p className="mt-3 text-sm text-slate-500">업데이트 {formatDate(theme.lastUpdated)}</p></div><div className="mt-8 grid gap-5 lg:grid-cols-2"><InfoSection title="테마 개요"><p>{theme.description}</p></InfoSection><InfoSection title="왜 중요한가"><BulletList items={theme.whyItMatters} /></InfoSection><section className="panel rounded-xl p-5 lg:col-span-2"><h2 className="text-xl font-semibold">밸류체인 맵</h2><div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{theme.valueChain.map((layer) => <div className="rounded-lg border border-[#29435e] p-4" key={layer.layer}><p className="text-xs font-bold text-cyan-300">{layer.layer}</p><p className="mt-2 text-sm leading-6 text-slate-300">{layer.companies.join(" · ")}</p></div>)}</div></section><InfoSection title="핵심 KPI"><BulletList items={theme.kpis} /></InfoSection><InfoSection title="주요 리스크"><BulletList items={theme.risks} /></InfoSection><RelatedLinks title="핵심 수혜 기업" kind="stocks" items={names(stocks, theme.relatedStocks)} /><RelatedLinks title="관련 개념" kind="learn" items={names(learnItems, theme.relatedLearn)} /><RelatedLinks title="관련 브리프" kind="briefs" items={names(briefs, theme.relatedBriefs)} /></div><section className="mt-5 panel rounded-xl p-5"><p className="eyebrow">SOURCES</p><h2 className="mt-2 font-semibold">출처 및 확인 자료</h2><div className="mt-3"><SourceBlock sources={theme.sources} /></div></section></Container>; }

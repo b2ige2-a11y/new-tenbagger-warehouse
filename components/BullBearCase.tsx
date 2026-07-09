@@ -1,0 +1,2 @@
+import { BulletList } from "./ContentBlocks";
+export function BullBearCase({ bull, bear }: { bull: string[]; bear: string[] }) { return <div className="grid gap-5 md:grid-cols-2"><div><p className="mb-3 text-sm font-semibold text-emerald-300">긍정 시나리오</p><BulletList items={bull} /></div><div><p className="mb-3 text-sm font-semibold text-rose-300">부정 시나리오</p><BulletList items={bear} /></div></div>; }

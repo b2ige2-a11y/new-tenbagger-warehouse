@@ -1,0 +1,1 @@
+export function ScoreBadge({ score }: { score: number }) { return <span className="inline-flex rounded-md border border-cyan-300/30 bg-cyan-300/10 px-2.5 py-1 font-mono text-sm font-bold text-cyan-100">{score}</span>; }

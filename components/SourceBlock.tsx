@@ -1,0 +1,2 @@
+import type { Source } from "@/data/types";
+export function SourceBlock({ sources }: { sources: Source[] }) { return <div className="space-y-2">{sources.map((source) => source.url ? <a className="block text-sm text-cyan-300 hover:underline" href={source.url} target="_blank" rel="noreferrer" key={`${source.label}-${source.url}`}>{source.label} <span aria-hidden="true">↗</span></a> : <p className="text-sm text-slate-300" key={source.label}>{source.label}</p>)}</div>; }

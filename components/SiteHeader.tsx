@@ -1,0 +1,4 @@
+import Link from "next/link";
+import { Container } from "./Container";
+import { navItems } from "@/lib/routes";
+export function SiteHeader() { return <header className="sticky top-0 z-20 border-b border-[#20344c] bg-[#07111f]/95 backdrop-blur"><Container className="flex min-h-16 items-center justify-between gap-4"><Link href="/" className="leading-none"><span className="block text-sm font-bold tracking-tight text-white">TENBAGGER</span><span className="text-[10px] tracking-[.22em] text-cyan-300">WAREHOUSE</span></Link><nav className="hidden items-center gap-5 text-sm text-slate-300 lg:flex">{navItems.map((item) => <Link className="transition hover:text-cyan-300" href={item.href} key={item.href}>{item.label}</Link>)}</nav><Link href="/disclaimer" className="rounded-md border border-cyan-400/40 px-3 py-1.5 text-xs text-cyan-200 transition hover:bg-cyan-300/10">정보·학습 목적</Link></Container></header>; }
