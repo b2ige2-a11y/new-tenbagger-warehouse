@@ -5,6 +5,7 @@ import { BeginnerGuideBox } from "@/components/BeginnerGuideBox";
 import { BusinessModelCards } from "@/components/BusinessModelCards";
 import { HeroIllustration } from "@/components/HeroIllustration";
 import { KpiWatchlist } from "@/components/KpiWatchlist";
+import { ObservationSnapshot } from "@/components/ObservationSnapshot";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { SourceBlock } from "@/components/SourceBlock";
 import { SummaryPanel } from "@/components/SummaryPanel";
@@ -34,6 +35,7 @@ export default async function StockDetail({ params }: { params: Promise<{ slug: 
   const businessSegments = stock.businessSegments ?? [{ title: "핵심 제품과 서비스", description: "이 기업의 제품과 서비스가 어떤 고객의 문제를 해결하는지 회사 자료를 통해 확인합니다." }, { title: "고객과 최종 시장", description: "수요가 어느 산업과 고객군에서 발생하는지 살펴봅니다." }, { title: "공급과 실행", description: "생산·조달·출시 과정이 사업 흐름에 주는 영향을 점검합니다." }];
   const whyItMatters = stock.whyItMatters ?? [{ title: "산업 속 역할", description: "미래 산업 공급망에서 이 기업이 맡는 역할을 중심으로 이해합니다." }, { title: "경쟁력", description: "기술, 고객 관계, 실행력이 어떤 차이를 만드는지 확인합니다." }, { title: "관찰 포인트", description: "성장 이야기보다 실제 수요와 수익성의 변화를 계속 점검합니다." }];
   const supplyChain = stock.supplyChain ?? [{ label: "수요 기업", description: "고객과 최종 시장의 투자·교체 수요를 확인합니다." }, { label: stock.name, description: "제품과 서비스가 공급망 안에서 맡는 역할을 봅니다." }, { label: "협력 생태계", description: "생산, 부품, 유통 파트너의 영향을 함께 살펴봅니다." }];
+  const observationPoints = stock.observationPoints ?? [{ title: "핵심 제품 수요", status: "정기 점검", detail: "제품 수요가 실제 사업 흐름과 연결되는지 확인합니다." }, { title: "고객 투자", status: "변화 관찰", detail: "주요 고객과 최종 시장의 투자 계획을 함께 살펴봅니다." }, { title: "공급·재고", status: "균형 점검", detail: "공급 능력과 재고가 수요 설명과 일치하는지 확인합니다." }];
   const learnLinks = stock.relatedLearn.map((itemSlug) => ({ href: `/learn/${itemSlug}`, label: findLearn(itemSlug)?.title ?? itemSlug }));
 
   return <Container className="py-10 sm:py-14">
@@ -50,6 +52,7 @@ export default async function StockDetail({ params }: { params: Promise<{ slug: 
     </div>
 
     <div className="mt-12 space-y-10">
+      <ObservationSnapshot items={observationPoints} lastUpdated={formatDate(stock.lastUpdated)} />
       <section className="max-w-4xl"><p className="eyebrow">한마디로 이해하기</p><h2 className="mt-2 text-2xl font-semibold sm:text-3xl">{stock.summary}</h2><p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">{stock.description}</p></section>
       <InfoSection title="돈은 어디서 버나?"><p className="mb-5 max-w-3xl text-slate-400">사업을 이해할 때는 제품 이름보다 고객이 무엇을 위해 비용을 지불하는지부터 보는 편이 좋습니다.</p><BusinessModelCards items={businessSegments} /></InfoSection>
       <InfoSection title="왜 중요한가?"><WhyItMattersGrid items={whyItMatters} /></InfoSection>
