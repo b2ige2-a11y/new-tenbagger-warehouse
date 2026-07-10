@@ -1,2 +1,12 @@
 import Link from "next/link";
-export function SectionHeader({ eyebrow, title, description, href }: { eyebrow: string; title: string; description?: string; href?: string }) { return <div className="mb-6 flex items-end justify-between gap-4"><div><p className="eyebrow">{eyebrow}</p><h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h2>{description && <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">{description}</p>}</div>{href && <Link className="shrink-0 text-sm text-cyan-300 hover:text-cyan-100" href={href}>전체 보기 →</Link>}</div>; }
+
+export function SectionHeader({ eyebrow, title, description, href }: { eyebrow: string; title: string; description?: string; href?: string }) {
+  return <div className="section-header">
+    <div>
+      <p className="eyebrow">{eyebrow}</p>
+      <h2>{title}</h2>
+      {description && <p className="section-header__description">{description}</p>}
+    </div>
+    {href && <Link className="section-header__link" href={href}>전체 보기 <span aria-hidden="true">→</span></Link>}
+  </div>;
+}
