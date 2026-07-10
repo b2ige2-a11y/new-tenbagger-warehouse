@@ -9,6 +9,7 @@ export function KpiWatchlist({ items }: { items: KpiItem[] }) { return <div clas
   <div className="key-number__top"><p className="key-number__label">{kpi.label}</p>{date && <span className="key-number__period">{date}</span>}</div>
   {kpi.value ? <div className="key-number__figure"><strong>{kpi.value}</strong>{change && <span>{change}</span>}</div> : <p className="key-number__pending">공식 자료 기준으로 업데이트 예정</p>}
   <p className="key-number__note">{kpi.note ?? kpi.description}</p>
+  {(kpi.positiveSignal || kpi.negativeSignal) && <div className="key-number__signals">{kpi.positiveSignal && <p><span className="is-positive">좋아지는 신호</span>{kpi.positiveSignal}</p>}{kpi.negativeSignal && <p><span className="is-negative">나빠지는 신호</span>{kpi.negativeSignal}</p>}</div>}
   {kpi.watchPoint && <p className="key-number__next"><b>다음에 볼 것</b>{kpi.watchPoint}</p>}
   {kpi.sourceLabel && <footer className="key-number__source">{kpi.sourceUrl ? <a href={kpi.sourceUrl} target="_blank" rel="noreferrer">{kpi.sourceLabel} ↗</a> : <span>{kpi.sourceLabel}</span>}</footer>}
   </article>; })}</div>; }

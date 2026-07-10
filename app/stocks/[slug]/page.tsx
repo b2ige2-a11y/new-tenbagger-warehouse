@@ -1,67 +1,220 @@
 import { notFound } from "next/navigation";
+import { BusinessModelCards } from "@/components/BusinessModelCards";
+import { CompanyComparison } from "@/components/CompanyComparison";
+import { CompanyMark } from "@/components/CompanyMark";
+import { CompanyNetwork } from "@/components/CompanyNetwork";
 import { Container } from "@/components/Container";
 import { BulletList, InfoSection } from "@/components/ContentBlocks";
-import { BeginnerGuideBox } from "@/components/BeginnerGuideBox";
-import { BusinessModelCards } from "@/components/BusinessModelCards";
-import { HeroIllustration } from "@/components/HeroIllustration";
 import { KpiWatchlist } from "@/components/KpiWatchlist";
+import { NextEventList } from "@/components/NextEventList";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { SourceBlock } from "@/components/SourceBlock";
-import { SummaryPanel } from "@/components/SummaryPanel";
 import { SupplyChainDiagram } from "@/components/SupplyChainDiagram";
 import { TagBadge } from "@/components/TagBadge";
+import { ThesisPanel } from "@/components/ThesisPanel";
 import { WhyItMattersGrid } from "@/components/WhyItMattersGrid";
-import { getStock, stocks } from "@/data/stocks";
 import { briefs } from "@/data/briefs";
-import { themes } from "@/data/themes";
 import { learnItems } from "@/data/learn";
+import { getStock, stocks } from "@/data/stocks";
+import { themes } from "@/data/themes";
+import type { CompanyNetwork as CompanyNetworkData, NextEvent, StockThesis } from "@/data/types";
 import { metadata } from "@/lib/seo";
 import { formatDate } from "@/lib/utils";
 
-export function generateStaticParams() { return stocks.map(({ slug }) => ({ slug })); }
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const stock = getStock(slug); return stock ? metadata(`${stock.name} 기업 설명서`, `${stock.name}의 사업모델, 성장 동력, 핵심 KPI, 리스크를 한국 투자자 관점에서 정리한 정보성 아카이브입니다.`, `/stocks/${stock.slug}`) : {}; }
+export function generateStaticParams() {
+  return stocks.map(({ slug }) => ({ slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const stock = getStock(slug);
+  return stock
+    ? metadata(
+        `${stock.name} 기업 설명서`,
+        `${stock.name}의 핵심 thesis, 사업 구조, 핵심 숫자, 공급망과 리스크를 정리한 투자 아카이브입니다.`,
+        `/stocks/${stock.slug}`,
+      )
+    : {};
+}
 
 export default async function StockDetail({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const stock = getStock(slug);
   if (!stock) notFound();
+
   const findTheme = (itemSlug: string) => themes.find((item) => item.slug === itemSlug);
   const findStock = (itemSlug: string) => stocks.find((item) => item.slug === itemSlug);
   const findLearn = (itemSlug: string) => learnItems.find((item) => item.slug === itemSlug);
   const findBrief = (itemSlug: string) => briefs.find((item) => item.slug === itemSlug);
-  const themeNames = stock.themes.map((itemSlug) => findTheme(itemSlug)?.name ?? itemSlug).join(" · ");
-  const businessSegments = stock.businessSegments ?? [{ title: "핵심 제품과 서비스", description: "이 기업의 제품과 서비스가 어떤 고객의 문제를 해결하는지 회사 자료를 통해 확인합니다." }, { title: "고객과 최종 시장", description: "수요가 어느 산업과 고객군에서 발생하는지 살펴봅니다." }, { title: "공급과 실행", description: "생산·조달·출시 과정이 사업 흐름에 주는 영향을 점검합니다." }];
-  const whyItMatters = stock.whyItMatters ?? [{ title: "산업 속 역할", description: "미래 산업 공급망에서 이 기업이 맡는 역할을 중심으로 이해합니다." }, { title: "경쟁력", description: "기술, 고객 관계, 실행력이 어떤 차이를 만드는지 확인합니다." }, { title: "관찰 포인트", description: "성장 이야기보다 실제 수요와 수익성의 변화를 계속 점검합니다." }];
-  const quickFacts = stock.quickFacts ?? [{ label: "이 회사는 무엇을 하나", value: stock.summary }, { label: "왜 중요한가", value: whyItMatters[0].description }, { label: "어떤 키워드로 보나", value: stock.kpis.slice(0, 2).map((item) => typeof item === "string" ? item : item.label).join(" · ") }, { label: "관련 테마", value: themeNames }];
-  const supplyChain = stock.supplyChain ?? [{ label: "수요 기업", description: "고객과 최종 시장의 투자·교체 수요를 확인합니다." }, { label: stock.name, description: "제품과 서비스가 공급망 안에서 맡는 역할을 봅니다." }, { label: "협력 생태계", description: "생산, 부품, 유통 파트너의 영향을 함께 살펴봅니다." }];
-  const observationPoints = stock.observationPoints ?? [{ title: "핵심 제품 수요", status: "정기 점검", detail: "제품 수요가 실제 사업 흐름과 연결되는지 확인합니다." }, { title: "고객 투자", status: "변화 관찰", detail: "주요 고객과 최종 시장의 투자 계획을 함께 살펴봅니다." }, { title: "공급·재고", status: "균형 점검", detail: "공급 능력과 재고가 수요 설명과 일치하는지 확인합니다." }];
-  const learnLinks = stock.relatedLearn.map((itemSlug) => ({ href: `/learn/${itemSlug}`, label: findLearn(itemSlug)?.title ?? itemSlug }));
 
-  return <Container className="py-10 sm:py-14">
-    <header className="company-header">
-      <p className="eyebrow">기업 이야기</p>
-      <div className="mt-3 flex flex-wrap items-center gap-3"><h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{stock.name}</h1><span className="company-ticker">{stock.ticker}</span></div>
-      <p className="company-header__summary">{stock.summary}</p>
-      <p className="mt-3 text-sm text-slate-400">{stock.exchange} · {stock.sector} · 마지막 정리 {formatDate(stock.lastUpdated)}</p>
-      <div className="mt-5 flex flex-wrap gap-2">{stock.themes.map((itemSlug) => { const theme = findTheme(itemSlug); return theme && <TagBadge key={itemSlug} label={theme.name} href={`/themes/${itemSlug}`} />; })}</div>
-    </header>
+  const businessSegments = stock.businessSegments ?? [
+    { title: "핵심 제품과 서비스", description: "기업이 어떤 제품과 서비스로 고객의 지출을 가져오는지 확인합니다." },
+    { title: "고객과 최종 수요", description: "매출을 만드는 고객군과 수요처가 어디인지 살펴봅니다." },
+    { title: "공급과 실행", description: "생산·조달·출시 과정이 성장 속도와 수익성에 주는 영향을 점검합니다." },
+  ];
+  const whyItMatters = stock.whyItMatters ?? [
+    { title: "산업 내 역할", description: "이 기업이 가치사슬에서 맡는 역할과 대체 가능성을 봅니다." },
+    { title: "경쟁 우위", description: "기술, 고객 관계, 규모와 실행력이 어떤 차이를 만드는지 확인합니다." },
+    { title: "숫자로 확인", description: "성장 스토리가 매출·마진·수요 지표로 이어지는지 계속 점검합니다." },
+  ];
+  const supplyChain = stock.supplyChain ?? [
+    { label: "최종 수요", description: "고객의 투자와 교체 수요가 사업의 출발점입니다." },
+    { label: stock.name, description: "제품과 서비스가 공급망 안에서 맡는 역할을 확인합니다." },
+    { label: "공급·유통 생태계", description: "생산, 부품과 유통 파트너가 실행 속도에 영향을 줍니다." },
+  ];
+  const thesis: StockThesis = stock.thesis ?? {
+    statement: `${stock.summary}의 수요와 수익성이 실제 숫자로 이어지는지 확인하는 기업`,
+    status: "확인 필요",
+    question: "핵심 제품 수요가 매출 성장과 수익성 개선으로 이어지고 있는가?",
+    updatedAt: stock.lastUpdated,
+  };
+  const thesisBreaks = stock.thesisBreaks ?? stock.bearCase.slice(0, 3);
+  const companyNetwork: CompanyNetworkData = stock.companyNetwork ?? {
+    customers: ["주요 고객과 최종 수요처 — 공식 자료에서 확인"],
+    suppliers: ["생산·부품·유통 파트너 — 공식 자료에서 확인"],
+    competitors: stock.relatedStocks.map((itemSlug) => findStock(itemSlug)?.name ?? itemSlug),
+    beneficiaries: stock.relatedStocks.map((itemSlug) => ({
+      name: findStock(itemSlug)?.name ?? itemSlug,
+      slug: itemSlug,
+      reason: "같은 산업과 공급망에서 함께 확인할 기업",
+    })),
+  };
+  const nextEvents: NextEvent[] = stock.nextEvents ?? stock.catalysts.map((title) => ({
+    category: "확인",
+    title,
+    description: "다음 공식 발표와 회사 자료에서 방향이 달라지는지 확인합니다.",
+  }));
 
-    <section className="easy-company-intro">
-      <div><p className="eyebrow">이 회사는 쉽게 말해?</p><h2>{stock.name}는 어떤 회사인가요?</h2><p>{stock.description}</p></div>
-      <HeroIllustration ticker={stock.ticker} name={stock.name} />
-    </section>
+  return (
+    <Container className="py-10 sm:py-14">
+      <header className="company-header company-header--research">
+        <CompanyMark ticker={stock.ticker} name={stock.name} />
+        <div className="company-header__body">
+          <p className="eyebrow">기업 설명서 · {stock.ticker}</p>
+          <h1>{stock.name}</h1>
+          <p className="company-header__summary">{stock.summary}</p>
+          <p className="company-header__meta">
+            {stock.exchange} · {stock.sector} · 마지막 업데이트 {formatDate(stock.lastUpdated)}
+          </p>
+          <div className="company-header__tags">
+            {stock.themes.map((itemSlug) => {
+              const theme = findTheme(itemSlug);
+              return theme && <TagBadge key={itemSlug} label={theme.name} href={`/themes/${itemSlug}`} />;
+            })}
+          </div>
+        </div>
+      </header>
 
-    <div className="mt-10 space-y-12">
-      <SummaryPanel facts={quickFacts} />
-      <section className="key-number-section"><div className="section-heading"><p className="eyebrow">핵심 숫자</p><h2>최근 공식 자료에서 볼 수 있는 숫자</h2><p>기업의 규모와 흐름을 빠르게 파악할 수 있는 몇 가지 숫자입니다.</p></div><KpiWatchlist items={stock.kpis} /></section>
-      <section className="content-section"><div className="section-heading"><p className="eyebrow">사업 구조</p><h2>돈은 어디서 버나?</h2><p>제품 이름보다 고객이 무엇을 위해 비용을 지불하는지부터 봅니다.</p></div><BusinessModelCards items={businessSegments} /></section>
-      <section className="content-section content-section--tint"><div className="section-heading"><p className="eyebrow">산업 속 위치</p><h2>왜 중요한가?</h2></div><WhyItMattersGrid items={whyItMatters} /></section>
-      <section className="supply-section"><div className="section-heading"><p className="eyebrow">관련된 회사들</p><h2>어떤 회사들과 이어져 있나?</h2><p>고객, NVIDIA 플랫폼, 제조·메모리 회사가 어떻게 연결되는지 봅니다.</p></div><SupplyChainDiagram items={supplyChain} /></section>
-      <BeginnerGuideBox links={learnLinks} />
-      <details className="deep-dive"><summary><span><b>조금 더 깊게 보기</b><small>지금 볼 점, 긍정·부정 시나리오와 리스크</small></span><i aria-hidden="true">＋</i></summary><div className="deep-dive__content"><section><h3>지금 볼 점</h3><ul>{observationPoints.map((point) => <li key={point.title}><b>{point.title}</b><span>{point.detail}</span></li>)}</ul></section><section className="grid gap-5 lg:grid-cols-2"><InfoSection title="긍정적으로 볼 수 있는 점"><BulletList items={stock.bullCase} /></InfoSection><InfoSection title="반대로 생각해 볼 점"><BulletList items={stock.bearCase} /></InfoSection></section><section className="grid gap-5 lg:grid-cols-[1.2fr_.8fr]"><InfoSection title="주의해서 볼 점"><BulletList items={stock.risks} /></InfoSection><InfoSection title="다음에 확인할 일"><BulletList items={stock.catalysts} /></InfoSection></section></div></details>
-      <section className="grid gap-5 lg:grid-cols-3"><RelatedLinks title="같이 보면 좋은 기업" kind="stocks" items={stock.relatedStocks.map((itemSlug) => ({ slug: itemSlug, label: findStock(itemSlug)?.name ?? itemSlug }))} /><RelatedLinks title="관련 개념" kind="learn" items={stock.relatedLearn.map((itemSlug) => ({ slug: itemSlug, label: findLearn(itemSlug)?.title ?? itemSlug }))} /><RelatedLinks title="관련 브리프" kind="briefs" items={stock.relatedBriefs.map((itemSlug) => ({ slug: itemSlug, label: findBrief(itemSlug)?.title ?? itemSlug }))} /></section>
-      <section className="reference-section"><div><p className="eyebrow">출처</p><h2 className="mt-2 text-xl font-semibold">출처 및 확인 자료</h2><p className="mt-2 text-sm leading-6 text-slate-400">최신 내용과 구체적 수치는 공식 자료를 우선 확인하세요.</p><div className="mt-4"><SourceBlock sources={stock.sources} /></div></div><div><p className="eyebrow">업데이트 기록</p>{stock.thesisLogs.map((log) => <div className="mt-3" key={log.date}><p className="text-xs font-semibold text-cyan-200">{formatDate(log.date)}</p><div className="mt-2"><BulletList items={log.items} /></div></div>)}</div></section>
-      <section className="rounded-xl border border-amber-300/20 bg-amber-300/5 p-5 sm:p-7"><p className="eyebrow text-amber-200">정보·학습 목적 안내</p><p className="mt-3 text-sm leading-7 text-amber-100">본 페이지는 투자 권유가 아닌 정보 정리 및 학습 목적의 기업 설명서입니다. 투자 판단과 책임은 투자자 본인에게 있습니다.</p></section>
-    </div>
-  </Container>;
+      <div className="company-archive">
+        <ThesisPanel thesis={thesis} />
+
+        <section className="research-section" id="key-numbers">
+          <div className="section-heading">
+            <p className="eyebrow">02 · 핵심 숫자</p>
+            <h2>Thesis를 숫자로 점검합니다</h2>
+            <p>숫자 자체보다 왜 중요한지, 어느 방향이 좋아지거나 나빠지는 신호인지 함께 봅니다.</p>
+          </div>
+          <KpiWatchlist items={stock.kpis} />
+        </section>
+
+        <section className="research-section" id="business-model">
+          <div className="section-heading">
+            <p className="eyebrow">03 · 사업 구조</p>
+            <h2>돈은 어디서 버나?</h2>
+            <p>{stock.description}</p>
+          </div>
+          <BusinessModelCards items={businessSegments} />
+          <div className="business-position">
+            <h3>산업에서 중요한 이유</h3>
+            <WhyItMattersGrid items={whyItMatters} />
+          </div>
+        </section>
+
+        <section className="research-section research-section--tint" id="drivers-risks">
+          <div className="section-heading">
+            <p className="eyebrow">04 · 성장 동력과 리스크</p>
+            <h2>좋아질 조건과 thesis가 깨질 조건</h2>
+            <p>긍정적인 이야기만 모으지 않고, 반대 시나리오와 판단을 바꿔야 할 조건을 같이 적습니다.</p>
+          </div>
+          <div className="scenario-grid">
+            <InfoSection title="상승 동력"><BulletList items={stock.bullCase} /></InfoSection>
+            <InfoSection title="주요 리스크"><BulletList items={stock.risks} /></InfoSection>
+            <InfoSection title="Thesis가 깨지는 조건"><BulletList items={thesisBreaks} /></InfoSection>
+          </div>
+        </section>
+
+        <section className="research-section" id="supply-chain">
+          <div className="section-heading">
+            <p className="eyebrow">05 · 공급망과 2차 수혜주</p>
+            <h2>누가 사고, 누가 공급하며, 누구와 경쟁하나?</h2>
+            <p>한 기업의 실적만 보지 않고 고객 CAPEX, 생산 병목과 경쟁사의 움직임을 연결해 봅니다.</p>
+          </div>
+          <SupplyChainDiagram items={supplyChain} />
+          <div className="mt-6"><CompanyNetwork companyName={stock.name} network={companyNetwork} /></div>
+          <div className="related-research-links">
+            <RelatedLinks title="함께 봐야 할 기업" kind="stocks" items={stock.relatedStocks.map((itemSlug) => ({ slug: itemSlug, label: findStock(itemSlug)?.name ?? itemSlug }))} />
+            <RelatedLinks title="관련 테마" kind="themes" items={stock.themes.map((itemSlug) => ({ slug: itemSlug, label: findTheme(itemSlug)?.name ?? itemSlug }))} />
+            <RelatedLinks title="관련 개념" kind="learn" items={stock.relatedLearn.map((itemSlug) => ({ slug: itemSlug, label: findLearn(itemSlug)?.title ?? itemSlug }))} />
+          </div>
+        </section>
+
+        <section className="research-section" id="comparison">
+          <div className="section-heading">
+            <p className="eyebrow">06 · 비교해서 보기</p>
+            <h2>비슷한 기업과 무엇이 다른가?</h2>
+            <p>제품 이름보다 사업 범위, 생태계와 확인해야 할 숫자의 차이를 비교합니다.</p>
+          </div>
+          {stock.comparison ? (
+            <CompanyComparison companyName={stock.name} comparison={stock.comparison} />
+          ) : (
+            <div className="comparison-placeholder">
+              <p>정량 비교는 공식 자료 기준을 맞춘 뒤 추가합니다. 현재는 같은 산업의 기업 설명서를 연결합니다.</p>
+              <RelatedLinks title="비교할 기업" kind="stocks" items={stock.relatedStocks.map((itemSlug) => ({ slug: itemSlug, label: findStock(itemSlug)?.name ?? itemSlug }))} />
+            </div>
+          )}
+        </section>
+
+        <section className="research-section" id="next-events">
+          <div className="section-heading">
+            <p className="eyebrow">07 · 다음 확인 이벤트</p>
+            <h2>다음에 무엇을 확인할까?</h2>
+            <p>실적 발표만이 아니라 고객사 투자, 신제품, 규제와 공급망 기업의 설명을 함께 봅니다.</p>
+          </div>
+          <NextEventList items={nextEvents} />
+        </section>
+
+        <section className="research-section reference-section" id="sources">
+          <div>
+            <p className="eyebrow">08 · 출처</p>
+            <h2>출처 및 확인 자료</h2>
+            <p>구체적 숫자는 회사의 공식 자료를 우선하며, 링크가 없는 항목은 확인할 자료의 종류만 표시합니다.</p>
+            <div className="mt-4"><SourceBlock sources={stock.sources} /></div>
+          </div>
+          <div>
+            <p className="eyebrow">업데이트 기록</p>
+            {stock.thesisLogs.map((log) => (
+              <div className="update-log" key={log.date}>
+                <p>{formatDate(log.date)}</p>
+                <BulletList items={log.items} />
+              </div>
+            ))}
+            {stock.relatedBriefs.length > 0 && (
+              <div className="reference-briefs">
+                <p>관련 브리프 아카이브</p>
+                {stock.relatedBriefs.map((itemSlug) => {
+                  const brief = findBrief(itemSlug);
+                  return brief && <TagBadge key={itemSlug} label={`예시 · ${brief.title}`} href={`/briefs/${itemSlug}`} />;
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="financial-note">
+          <p>정보·학습 목적 안내</p>
+          <span>본 페이지는 투자 권유가 아닌 정보 정리 및 학습 목적의 기업 설명서입니다. 투자 판단과 책임은 투자자 본인에게 있습니다.</span>
+        </section>
+      </div>
+    </Container>
+  );
 }
